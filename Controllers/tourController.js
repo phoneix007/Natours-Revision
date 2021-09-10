@@ -2,7 +2,22 @@ const Tour = require('../Models/tourModel');
 
 exports.getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find();
+    let queryString = JSON.stringify(req.query);
+    queryString = queryString.replace(
+      /\b(gte|gt|lte|lt)\b/,
+      (match) => `$${match}`
+    );
+    console.log(queryString);
+    let query = Tour.find(JSON.parse(queryString));
+    // if (req.query.sort) {
+    //   query = query.sort(`${req.query.sort}`);
+    // }
+    // if (req.query.fields) {
+    //   query = query.select(req.query.fields.split(',').join(' '));
+    // }
+    query = query.sort('price');
+    query = query.select('name price duration');
+    const tours = await query;
     res.status(200).json({
       status: 'success',
       results: tours.length,
