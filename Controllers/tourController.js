@@ -7,7 +7,6 @@ exports.getAllTours = async (req, res) => {
       /\b(gte|gt|lte|lt)\b/,
       (match) => `$${match}`
     );
-    console.log(queryString);
     let query = Tour.find(JSON.parse(queryString));
     // if (req.query.sort) {
     //   query = query.sort(`${req.query.sort}`);
@@ -45,7 +44,7 @@ exports.getTour = async (req, res) => {
   } catch (err) {
     res.status(400).json({
       status: 'failed',
-      message: 'Please try again',
+      message: 'No tour with that id',
     });
   }
 };
