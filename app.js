@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const tourRouter = require('./routes/tourRouter');
+const userRouter = require('./routes/userRouter');
 const AppError = require('./AppError');
 
 const app = express();
@@ -10,7 +11,9 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 app.use(express.json());
+
 app.use('/tours', tourRouter);
+app.use('/user', userRouter);
 
 // app.all is use for all http verb req , like get, post...
 app.all('*', (req, res, next) => {
