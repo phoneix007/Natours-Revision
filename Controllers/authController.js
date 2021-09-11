@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { promisify } = require('util');
 const User = require('../Models/userModel');
 const AppError = require('../AppError');
 
@@ -45,4 +46,38 @@ exports.login = async (req, res, next) => {
     message: 'login success',
     token,
   });
+};
+
+exports.protect = async (req, res, next) => {
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+  if (!token) {
+    return next(new AppError('You are not logged in', 401));
+  }
+  // verification of token
+
+  console.log(token);
+  try {
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return next(new AppError('The user no longer exists', 401));
+    }
+    req.user = user;
+  } catch (err) {
+    return next(new AppError('Invalid token please loggin again', 401));
+  }
+  next();
+};
+
+exports.restrictTo = (role) => (req, res, next) => {
+  if (req.user.role !== role)
+    return next(new AppError('you are not authorized to delete the tour', 403));
+
+  next();
 };
